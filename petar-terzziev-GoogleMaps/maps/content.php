@@ -1,13 +1,20 @@
 
-<?php global $wpdb;
-;
+<?php 
+global $wpdb;
+
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
 $cur_country=$_POST['select_country'];
-$sql_coordinates='select lat,lng from wp_coordinates where country=\''.$cur_country.'\'';
-$sql_cities='select city from wp_coordinates where country=\''.$cur_country.'\'';
+$cur_city=$_POST['select_city'];
+$sql_coordinates='select lat,lng from wp_coordinates where country=\''.$cur_country.'\' ';
+
+$sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\' limit 10';
+
 $cities=$wpdb->get_results($sql_cities);
+
 $coordinates=$wpdb->get_results($sql_coordinates);
-?> <?php the_content(); ?>
+?>
+
+ <?php the_content(); ?>
 
 <html>
   <head>
@@ -27,13 +34,22 @@ $coordinates=$wpdb->get_results($sql_coordinates);
      	<p>Choose country:</p>
 
 <form action="#" method="post">
-      <select name="select_country" id="select_country" onchange="this.form.submit(); initMap()">
-    <option value="null" id="default_option" selected>Select Country</option>
+      <select name="select_country" id="select_country" onchange=" this.form.submit(); initMap()">
+    <option value="null" id="default_option_country" selected>Select Country</option>
 </select>
       <select name="select_city" id="select_city" onchange="this.form.submit(); initMap()">
-    <option value="null" id="default_option" selected>Select City</option>
+    <option value="null" id="default_option_city" selected>Select City</option>
 </select>
-</form> 
+<label>lat(from):</label>
+<input type="text" id="lat_from" size="2">
+
+<label>lat(to):</label>
+<input type="text" id="lat_to" size="2">
+<label>lng(from):</label>
+<input type="text" id="lng_from" size="2">
+<label>lng(to):</label>
+<input type="text" id="lng_to" size="2">
+<input type="submit" value="Submit">
 </div>
     <!--The div element for the map -->
     <div id="map"></div>
@@ -51,11 +67,21 @@ select_menu.add(option, select_menu[i+1]);
          }
 
      	}
+           function load_cities(){
+          var select_menu=document.getElementById("select_city");
+         var cities_string='<?php echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE)?>';
+         var cities=JSON.parse(cities_string);
+      for(i in cities){
+             var option = document.createElement("option");
+option.value=cities[i]['city'];
+option.text = cities[i]['city'];
+select_menu.add(option, select_menu[i+1]);
 
-        function load_cities(){
-          console.log("was called");
+      }
     
       }
+
+   
 // Initialize and add the map
 function initMap() {
   // The location of Uluru
@@ -75,11 +101,8 @@ for(i in crds){
             title: "collection" 
     });
 }
-if('<?php echo $cur_country?>'){
-document.getElementById('default_option').value='<?php echo $cur_country?>';
+}
 
-}
-}
 $(document).ready(load_cities());
 $(document).ready(load_countries());
 
