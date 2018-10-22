@@ -4,10 +4,9 @@ global $wpdb;
 
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
 $cur_country=$_POST['select_country'];
-$cur_city=$_POST['select_city'];
-$sql_coordinates='select lat,lng from wp_coordinates where country=\''.$cur_country.'\' ';
+$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\'';
 
-$sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\' limit 10';
+$sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\'';
 
 $cities=$wpdb->get_results($sql_cities);
 
@@ -37,19 +36,20 @@ $coordinates=$wpdb->get_results($sql_coordinates);
       <select name="select_country" id="select_country" onchange=" this.form.submit(); initMap()">
     <option value="null" id="default_option_country" selected>Select Country</option>
 </select>
-      <select name="select_city" id="select_city" onchange="this.form.submit(); initMap()">
-    <option value="null" id="default_option_city" selected>Select City</option>
-</select>
+     <input type="text" id="city" name="select_city" list="cities" >
+     <datalist id="cities">
+     </datalist>
 <label>lat(from):</label>
-<input type="text" id="lat_from" size="2">
+<input type="text" id="lat_from" size="2" >
 
 <label>lat(to):</label>
-<input type="text" id="lat_to" size="2">
+<input type="text" id="lat_to" size="2" >
 <label>lng(from):</label>
-<input type="text" id="lng_from" size="2">
+<input type="text" id="lng_from" size="2" >
 <label>lng(to):</label>
-<input type="text" id="lng_to" size="2">
+<input type="text" id="lng_to" size="2" >
 <input type="submit" value="Submit">
+</form>
 </div>
     <!--The div element for the map -->
     <div id="map"></div>
@@ -68,14 +68,13 @@ select_menu.add(option, select_menu[i+1]);
 
      	}
            function load_cities(){
-          var select_menu=document.getElementById("select_city");
+          var select_menu=document.getElementById("cities");
          var cities_string='<?php echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE)?>';
          var cities=JSON.parse(cities_string);
       for(i in cities){
              var option = document.createElement("option");
 option.value=cities[i]['city'];
-option.text = cities[i]['city'];
-select_menu.add(option, select_menu[i+1]);
+select_menu.appendChild(option, select_menu[i+1]);
 
       }
     
@@ -91,18 +90,26 @@ function initMap() {
       document.getElementById('map'), {zoom: 4, center: uluru});
    var markers=Array();
             
-    var crds_str='<?php echo json_encode($coordinates)?>';
+    var crds_str='<?php echo json_encode($coordinates, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE)?>';
     var crds=JSON.parse(crds_str);
-
+    var infoWindows=Array();
 for(i in crds){
-    markers[i]= new google.maps.Marker({
+    marker= new google.maps.Marker({
             position: {lat: parseFloat(crds[i]['lat']),lng: parseFloat(crds[i]['lng'])},
             map: map,
             title: "collection" 
     });
-}
-}
+    var infowindow=new google.maps.InfoWindow();
+   google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(crds[i]['city']);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
 
+
+}
+}
 $(document).ready(load_cities());
 $(document).ready(load_countries());
 
