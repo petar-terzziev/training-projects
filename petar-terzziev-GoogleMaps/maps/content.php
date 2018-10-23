@@ -4,8 +4,10 @@ global $wpdb;
 
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
 $cur_country=$_POST['select_country'];
-$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\'';
-
+$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\' AND lat>'.$_POST['lat_from'].' AND lat<'.$_POST['lat_to'].'';
+if($_POST['select_city']!=''){
+  $sql_coordinates='select lat, lng,city from wp_coordinates where city=\''.$_POST['select_city'].'\'';
+}
 $sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\'';
 
 $cities=$wpdb->get_results($sql_cities);
@@ -40,14 +42,19 @@ $coordinates=$wpdb->get_results($sql_coordinates);
      <datalist id="cities">
      </datalist>
 <label>lat(from):</label>
-<input type="text" id="lat_from" size="2" >
+<input type="number" name="lat_from" step="0.05" min="0" max="90" value="0.0" >
 
 <label>lat(to):</label>
-<input type="text" id="lat_to" size="2" >
+<input type="number" name="lat_to" step="0.05" min="0" max="90" value="90.0">
 <label>lng(from):</label>
-<input type="text" id="lng_from" size="2" >
+
+<input type="number" step="0.05" name="lng_from" min="0" max="90" value="0.0">
+
 <label>lng(to):</label>
-<input type="text" id="lng_to" size="2" >
+
+<input type="number" step="0.05" name="lng_to" min="0" max="90" value="90.0">
+
+
 <input type="submit" value="Submit">
 </form>
 </div>
@@ -56,6 +63,7 @@ $coordinates=$wpdb->get_results($sql_coordinates);
 
      <script>
      	function load_countries(){
+      
      			var select_menu = document.getElementById("select_country");
          var countries_string='<?php echo json_encode($countries)?>';
          var countries =JSON.parse(countries_string);
@@ -83,6 +91,8 @@ select_menu.appendChild(option, select_menu[i+1]);
    
 // Initialize and add the map
 function initMap() {
+ var sth='<?php echo $_POST['lat_from']?>';
+ console.log(sth);
   // The location of Uluru
   var uluru = {lat: -25.344, lng: 131.036};
   // The map, centered at Uluru
