@@ -3,10 +3,10 @@
 global $wpdb;
 
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
-$cur_country=$_POST['select_country'];
-$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\' AND lat>'.$_POST['lat_from'].' AND lat<'.$_POST['lat_to'].'';
-if($_POST['select_city']!=''){
-  $sql_coordinates='select lat, lng,city from wp_coordinates where city=\''.$_POST['select_city'].'\'';
+$cur_country=$_GET['select_country'];
+$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].'';
+if($_GET['select_city']!=''){
+  $sql_coordinates='select lat, lng,city from wp_coordinates where city=\''.$_GET['select_city'].'\'';
 }
 $sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\'';
 
@@ -34,9 +34,9 @@ $coordinates=$wpdb->get_results($sql_coordinates);
      <div>
      	<p>Choose country:</p>
 
-<form action="#" method="post">
+<form action="#" method="get">
       <select name="select_country" id="select_country" onchange=" this.form.submit(); initMap()">
-    <option value="null" id="default_option_country" selected>Select Country</option>
+    <option value="null" id="default_option_country" hidden>Select Country</option>
 </select>
      <input type="text" id="city" name="select_city" list="cities" >
      <datalist id="cities">
@@ -91,8 +91,9 @@ select_menu.appendChild(option, select_menu[i+1]);
    
 // Initialize and add the map
 function initMap() {
- var sth='<?php echo $_POST['lat_from']?>';
- console.log(sth);
+ var sth='<?php echo $_GET['lat_from']?>';
+  var sth_else='<?php echo $_GET['select_country']?>';
+ console.log(sth_else);
   // The location of Uluru
   var uluru = {lat: -25.344, lng: 131.036};
   // The map, centered at Uluru
@@ -119,6 +120,7 @@ for(i in crds){
 
 
 }
+document.getElementById("default_option_country").innerHTML='<?php echo ((isset($_GET['select_country'])&&$_GET['select_country']!='null') ? $_GET['select_country']:'Select country')?>';
 }
 $(document).ready(load_cities());
 $(document).ready(load_countries());
