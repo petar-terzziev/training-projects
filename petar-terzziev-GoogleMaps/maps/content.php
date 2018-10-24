@@ -2,16 +2,19 @@
 <?php 
 global $wpdb;
 
+session_start();
+if($_GET['select_country']!='null'){
+$_SESSION['prev_country']=$_GET['select_country'];
+}
 
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
 $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
-$cur_country=$_GET['select_country'];
-$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>'.$_GET['population_from'].' AND population<'.$_GET['population_to'].'';
+$sql_coordinates='select lat, lng, city,population from wp_coordinates where country=\''.$_SESSION['prev_country'].'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>='.$_GET['population_from'].' AND population<='.$_GET['population_to'].'';
 if($_GET['select_city']!=''){
-  $sql_coordinates='select lat, lng,city from wp_coordinates where city=\''.$_GET['select_city'].'\'';
+  $sql_coordinates='select lat, lng,city,population from wp_coordinates where city=\''.$_GET['select_city'].'\'';
 }
 if($_GET['select_timezone']!='null'){
-  $sql_coordinates='select lat, lng,city from wp_coordinates where timezone=\''.$_GET['select_timezone'].'\'';
+  $sql_coordinates='select lat, lng,city,population from wp_coordinates where timezone=\''.$_GET['select_timezone'].'\'';
 }
 $sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\'';
 $cities=$wpdb->get_results($sql_cities);
@@ -38,34 +41,31 @@ $coordinates=$wpdb->get_results($sql_coordinates);
       <p>Choose country:</p>
 
 <form action="#" method="get">
+  <div>
+    <select name="select_timezone" id="select_timezone" onchange=" this.form.submit(); initMap()">
+    <option value="null" id="default_option_timezone" hidden>Select Timezone</option>
+</select>
       <select name="select_country" id="select_country" onchange=" this.form.submit(); initMap()">
     <option value="null" id="default_option_country" hidden>Select Country</option>
 </select>
-     <input type="text" id="city" name="select_city" list="cities" >
+</div>
+     <input type="text" id="city" name="select_city" list="cities" placeholder="Enter city name">
      <datalist id="cities">
      </datalist>
-<label>lat(from):</label>
-<input type="number" name="lat_from" step="0.05" min="0" max="90" value="0.0" >
+<label>lat(from-to):</label>
 
-<label>lat(to):</label>
-<input type="number" name="lat_to" step="0.05" min="0" max="90" value="90.0">
-<label>lng(from):</label>
+<input type="number" name="lat_from" style="width: 80px" min="0" max="90" value="0.0" >
+-
+<input type="number" name="lat_to" style="width: 80px"   min="0" max="90" value="90.0">
+<label>lng(from-to):</label>
 
-<input type="number" step="0.05" name="lng_from" min="0" max="90" value="0.0">
-
-<label>lng(to):</label>
-
-<input type="number" step="0.05" name="lng_to" min="0" max="90" value="90.0">
-<label>population(from):</label>
-<input type="number" name="population_from" step="5" min="0" value="0.0" >
-
-<label>population(to):</label>
-<input type="number" name="population_to" step="5" min="0"  value="1000000">
-
-  <select name="select_timezone" id="select_timezone" onchange=" this.form.submit(); initMap()">
-    <option value="null" id="default_option_timezone" hidden>Select Timezone</option>
-</select>
-
+<input type="number" step="0.05" style="width: 80px" name="lng_from" min="0" max="90" value="0.0">
+-
+<input type="number" step="0.05"  style="width: 80px" name="lng_to" min="0" max="90" value="90.0">
+<label>population(from-to):</label>
+<input type="number" name="population_from" style="width: 80px"  step="5" min="0" value="0.0" >
+-
+<input type="number" name="population_to" style="width: 80px"  step="5" min="0"  value="1000000000">
 <input type="submit" value="Submit">
 </form>
 </div>
@@ -135,7 +135,7 @@ for(i in crds){
     var infowindow=new google.maps.InfoWindow();
    google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
-          infowindow.setContent(crds[i]['city']);
+          infowindow.setContent(crds[i]['city']+'<div>'+crds[i]['population']+'</div>');
           infowindow.open(map, marker);
         }
       })(marker, i));
