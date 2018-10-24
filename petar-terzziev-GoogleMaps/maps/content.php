@@ -2,16 +2,19 @@
 <?php 
 global $wpdb;
 
+
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
+$timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
 $cur_country=$_GET['select_country'];
-$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].'';
+$sql_coordinates='select lat, lng, city from wp_coordinates where country=\''.$cur_country.'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>'.$_GET['population_from'].' AND population<'.$_GET['population_to'].'';
 if($_GET['select_city']!=''){
   $sql_coordinates='select lat, lng,city from wp_coordinates where city=\''.$_GET['select_city'].'\'';
 }
+if($_GET['select_timezone']!='null'){
+  $sql_coordinates='select lat, lng,city from wp_coordinates where timezone=\''.$_GET['select_timezone'].'\'';
+}
 $sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\'';
-
 $cities=$wpdb->get_results($sql_cities);
-
 $coordinates=$wpdb->get_results($sql_coordinates);
 ?>
 
@@ -32,7 +35,7 @@ $coordinates=$wpdb->get_results($sql_coordinates);
   <body>
      <h3>My Google Maps Demo</h3>
      <div>
-     	<p>Choose country:</p>
+      <p>Choose country:</p>
 
 <form action="#" method="get">
       <select name="select_country" id="select_country" onchange=" this.form.submit(); initMap()">
@@ -53,7 +56,15 @@ $coordinates=$wpdb->get_results($sql_coordinates);
 <label>lng(to):</label>
 
 <input type="number" step="0.05" name="lng_to" min="0" max="90" value="90.0">
+<label>population(from):</label>
+<input type="number" name="population_from" step="5" min="0" value="0.0" >
 
+<label>population(to):</label>
+<input type="number" name="population_to" step="5" min="0"  value="1000000">
+
+  <select name="select_timezone" id="select_timezone" onchange=" this.form.submit(); initMap()">
+    <option value="null" id="default_option_timezone" hidden>Select Timezone</option>
+</select>
 
 <input type="submit" value="Submit">
 </form>
@@ -62,9 +73,9 @@ $coordinates=$wpdb->get_results($sql_coordinates);
     <div id="map"></div>
 
      <script>
-     	function load_countries(){
+      function load_countries(){
       
-     			var select_menu = document.getElementById("select_country");
+          var select_menu = document.getElementById("select_country");
          var countries_string='<?php echo json_encode($countries)?>';
          var countries =JSON.parse(countries_string);
          for(i in countries){
@@ -73,8 +84,21 @@ option.value=countries[i]['country'];
 option.text = countries[i]['country'];
 select_menu.add(option, select_menu[i+1]);
          }
+      }
 
-     	}
+   function load_timezones(){
+      
+          var select_menu = document.getElementById("select_timezone");
+         var timezones_string='<?php echo json_encode($timezones)?>';
+         var timezones =JSON.parse(timezones_string);
+         for(i in timezones){
+          var option = document.createElement("option");
+option.value=timezones[i]['timezone'];
+option.text = timezones[i]['timezone'];
+select_menu.add(option, select_menu[i+1]);
+         }
+      }
+
            function load_cities(){
           var select_menu=document.getElementById("cities");
          var cities_string='<?php echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE)?>';
@@ -83,11 +107,9 @@ select_menu.add(option, select_menu[i+1]);
              var option = document.createElement("option");
 option.value=cities[i]['city'];
 select_menu.appendChild(option, select_menu[i+1]);
-
       }
     
       }
-
    
 // Initialize and add the map
 function initMap() {
@@ -117,14 +139,12 @@ for(i in crds){
           infowindow.open(map, marker);
         }
       })(marker, i));
-
-
 }
 document.getElementById("default_option_country").innerHTML='<?php echo ((isset($_GET['select_country'])&&$_GET['select_country']!='null') ? $_GET['select_country']:'Select country')?>';
 }
+$(document).ready(load_timezones());
 $(document).ready(load_cities());
 $(document).ready(load_countries());
-
     </script>
     <!--Load the API from the specified URL
     * The async attribute allows the browser to render the page while the API loads
