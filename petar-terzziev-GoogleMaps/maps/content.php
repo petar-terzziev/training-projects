@@ -6,6 +6,9 @@ session_start();
 if($_GET['select_country']!='null'){
 $_SESSION['prev_country']=$_GET['select_country'];
 }
+if($_GET['select_timezone']!='null'){
+  $_SESSION['prev_timezone']=$_GET['select_timezone'];
+}
 
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
 $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
@@ -14,9 +17,9 @@ if($_GET['select_city']!=''){
   $sql_coordinates='select lat, lng,city,population from wp_coordinates where city=\''.$_GET['select_city'].'\'';
 }
 if($_GET['select_timezone']!='null'){
-  $sql_coordinates='select lat, lng,city,population from wp_coordinates where timezone=\''.$_GET['select_timezone'].'\'';
+  $sql_coordinates='select lat, lng,city,population from wp_coordinates where timezone=\''.$_SESSION['prev_timezone'].'\'  AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>='.$_GET['population_from'].' AND population<='.$_GET['population_to'].'';
 }
-$sql_cities=' select distinct city from wp_coordinates where country=\''.$cur_country.'\'';
+$sql_cities=' select distinct city from wp_coordinates where country=\''.$_SESSION['prev_country'].'\'';
 $cities=$wpdb->get_results($sql_cities);
 $coordinates=$wpdb->get_results($sql_coordinates);
 ?>
@@ -49,19 +52,19 @@ $coordinates=$wpdb->get_results($sql_coordinates);
     <option value="null" id="default_option_country" hidden>Select Country</option>
 </select>
 </div>
-     <input type="text" id="city" name="select_city" list="cities" placeholder="Enter city name">
+     <input type="text" id="city" name="select_city" autocomplete="off" list="cities" placeholder="Enter city name" onkeyup="load_cities(this)">
      <datalist id="cities">
      </datalist>
 <label>lat(from-to):</label>
 
-<input type="number" name="lat_from" style="width: 80px" min="0" max="90" value="0.0" >
+<input type="number" name="lat_from" style="width: 80px" min="-90" max="90" value="-90.0" >
 -
-<input type="number" name="lat_to" style="width: 80px"   min="0" max="90" value="90.0">
+<input type="number" name="lat_to" style="width: 80px"   min="-90" max="90" value="90.0">
 <label>lng(from-to):</label>
 
-<input type="number" step="0.05" style="width: 80px" name="lng_from" min="0" max="90" value="0.0">
+<input type="number" step="0.05" style="width: 80px" name="lng_from" min="-180" max="180" value="-180.0">
 -
-<input type="number" step="0.05"  style="width: 80px" name="lng_to" min="0" max="90" value="90.0">
+<input type="number" step="0.05"  style="width: 80px" name="lng_to" min="-180" max="180" value="180.0">
 <label>population(from-to):</label>
 <input type="number" name="population_from" style="width: 80px"  step="5" min="0" value="0.0" >
 -
@@ -99,23 +102,25 @@ select_menu.add(option, select_menu[i+1]);
          }
       }
 
-           function load_cities(){
+           function load_cities(input){
           var select_menu=document.getElementById("cities");
          var cities_string='<?php echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE)?>';
          var cities=JSON.parse(cities_string);
       for(i in cities){
+        var r= new RegExp("^"+input.value);
+        console.log(cities[i]['city']);
+        console.log(r.test(cities[i]['city']));
+        if(r.test(cities[i]['city'])){
              var option = document.createElement("option");
 option.value=cities[i]['city'];
 select_menu.appendChild(option, select_menu[i+1]);
+}
       }
     
       }
    
 // Initialize and add the map
 function initMap() {
- var sth='<?php echo $_GET['lat_from']?>';
-  var sth_else='<?php echo $_GET['select_country']?>';
- console.log(sth_else);
   // The location of Uluru
   var uluru = {lat: -25.344, lng: 131.036};
   // The map, centered at Uluru
@@ -141,9 +146,10 @@ for(i in crds){
       })(marker, i));
 }
 document.getElementById("default_option_country").innerHTML='<?php echo ((isset($_GET['select_country'])&&$_GET['select_country']!='null') ? $_GET['select_country']:'Select country')?>';
+
+document.getElementById("default_option_timezone").innerHTML='<?php echo ((isset($_GET['select_timezone'])&&$_GET['select_timezone']!='null') ? $_GET['select_timezone']:'Select timezone')?>';
 }
 $(document).ready(load_timezones());
-$(document).ready(load_cities());
 $(document).ready(load_countries());
     </script>
     <!--Load the API from the specified URL
