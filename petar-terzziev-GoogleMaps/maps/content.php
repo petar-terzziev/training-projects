@@ -9,18 +9,16 @@ $_SESSION['prev_country']=$_GET['select_country'];
 if($_GET['select_timezone']!='null'){
   $_SESSION['prev_timezone']=$_GET['select_timezone'];
 }
-
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
 $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
-$sql_coordinates='select lat, lng, city,population from wp_coordinates where country=\''.$_SESSION['prev_country'].'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>='.$_GET['population_from'].' AND population<='.$_GET['population_to'].'';
+$sql_coordinates='select lat, lng, city,population from wp_coordinates where country=\''.$_SESSION['prev_country'].'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>='.$_GET['population_from'].' AND population<='.$_GET['population_to'].' ';
 if($_GET['select_city']!=''){
-  $sql_coordinates='select lat, lng,city,population from wp_coordinates where city=\''.$_GET['select_city'].'\'';
+  $sql_coordinates='select lat, lng,city,population from wp_coordinates where city=\''.$_GET['select_city'].'\' ';
 }
 if($_GET['select_timezone']!='null'){
   $sql_coordinates='select lat, lng,city,population from wp_coordinates where timezone=\''.$_SESSION['prev_timezone'].'\'  AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>='.$_GET['population_from'].' AND population<='.$_GET['population_to'].'';
 }
-$sql_cities=' select distinct city from wp_coordinates where country=\''.$_SESSION['prev_country'].'\'';
-$cities=$wpdb->get_results($sql_cities);
+
 $coordinates=$wpdb->get_results($sql_coordinates);
 ?>
 
@@ -52,7 +50,7 @@ $coordinates=$wpdb->get_results($sql_coordinates);
     <option value="null" id="default_option_country" hidden>Select Country</option>
 </select>
 </div>
-     <input type="text" id="city" name="select_city" autocomplete="off" list="cities" placeholder="Enter city name" onkeyup="load_cities(this)">
+     <input type="text" id="city" name="select_city" autocomplete="off" list="cities" placeholder="Enter city name" onkeypress="load_cities(this)" >
      <datalist id="cities">
      </datalist>
 <label>lat(from-to):</label>
@@ -77,7 +75,8 @@ $coordinates=$wpdb->get_results($sql_coordinates);
 
      <script>
       function load_countries(){
-      
+
+  
           var select_menu = document.getElementById("select_country");
          var countries_string='<?php echo json_encode($countries)?>';
          var countries =JSON.parse(countries_string);
@@ -102,23 +101,43 @@ select_menu.add(option, select_menu[i+1]);
          }
       }
 
-           function load_cities(input){
-          var select_menu=document.getElementById("cities");
-         var cities_string='<?php echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE)?>';
-         var cities=JSON.parse(cities_string);
-      for(i in cities){
-        var r= new RegExp("^"+input.value);
-        console.log(cities[i]['city']);
-        console.log(r.test(cities[i]['city']));
-        if(r.test(cities[i]['city'])){
-             var option = document.createElement("option");
-option.value=cities[i]['city'];
-select_menu.appendChild(option, select_menu[i+1]);
-}
+                function load_cities(input){  
+                  if(input.value.length>=3){
+                    
+
+
+
+                            jQuery.ajax({
+                        type: 'GET',
+                        url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+                        data:{
+                        action: 'my_action',
+                        country: '<?php echo $_GET['select_country']?>',
+                        in:input.value
+
+                        },
+                         success: function(cities){
+                          select_menu=document.getElementById("cities");
+
+
+                          select_menu.innerHTML = '';
+                          for(i in cities){
+                            console.log(cities[i])
+                                 var option = document.createElement("option");
+                                  option.value=cities[i]['city'];
+                                  option.text = cities[i]['city'];
+                            select_menu.appendChild(option, select_menu[i]);
+                          }
+
+
+                          
+                                            }
+                                        })  
+
+
+                  }
       }
-    
-      }
-   
+
 // Initialize and add the map
 function initMap() {
   // The location of Uluru
