@@ -41,12 +41,11 @@ $coordinates=$wpdb->get_results($sql_coordinates);
      <div>
       <p>Choose country:</p>
 
-<form action="#" method="get">
   <div>
-    <select name="select_timezone" id="select_timezone" onchange=" this.form.submit(); initMap()">
+    <select name="select_timezone" id="select_timezone">
     <option value="null" id="default_option_timezone" hidden>Select Timezone</option>
 </select>
-      <select name="select_country" id="select_country" onchange=" this.form.submit(); initMap()">
+      <select name="select_country" id="select_country" >
     <option value="null" id="default_option_country" hidden>Select Country</option>
 </select>
 </div>
@@ -55,25 +54,29 @@ $coordinates=$wpdb->get_results($sql_coordinates);
      </datalist>
 <label>lat(from-to):</label>
 
-<input type="number" name="lat_from" style="width: 80px" min="-90" max="90" value="-90.0" >
+<input type="number" name="lat_from" id="lat_from" style="width: 80px" min="-90" max="90" >
 -
-<input type="number" name="lat_to" style="width: 80px"   min="-90" max="90" value="90.0">
+<input type="number" name="lat_to" id="lat_to" style="width: 80px"   min="-90" max="90" >
 <label>lng(from-to):</label>
 
-<input type="number" step="0.05" style="width: 80px" name="lng_from" min="-180" max="180" value="-180.0">
+<input type="number" step="0.05" style="width: 80px" name="lng_from" id="lng_from" min="-180" max="180" >
 -
-<input type="number" step="0.05"  style="width: 80px" name="lng_to" min="-180" max="180" value="180.0">
+<input type="number" step="0.05"  style="width: 80px" name="lng_to" id="lng_to" min="-180" max="180" >
 <label>population(from-to):</label>
-<input type="number" name="population_from" style="width: 80px"  step="5" min="0" value="0.0" >
+<input type="number" name="population_from" id="population_from" style="width: 80px"  step="1" min="0"  >
 -
-<input type="number" name="population_to" style="width: 80px"  step="5" min="0"  value="1000000000">
-<input type="submit" value="Submit">
-</form>
+<input type="number" name="population_to" id="population_to" style="width: 80px"  step="1" min="0"  >
+<input type="submit" value="Submit" onclick="initMap()">
 </div>
     <!--The div element for the map -->
     <div id="map"></div>
 
      <script>
+
+
+
+
+
       function load_countries(){
 
   
@@ -112,7 +115,7 @@ select_menu.add(option, select_menu[i+1]);
                         url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
                         data:{
                         action: 'my_action',
-                        country: '<?php echo $_GET['select_country']?>',
+                        country: document.getElementById("select_country").value,
                         in:input.value
 
                         },
@@ -144,11 +147,26 @@ function initMap() {
   var uluru = {lat: -25.344, lng: 131.036};
   // The map, centered at Uluru
   var map = new google.maps.Map(
-      document.getElementById('map'), {zoom: 4, center: uluru});
-   var markers=Array();
-            
-    var crds_str='<?php echo json_encode($coordinates, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE)?>';
-    var crds=JSON.parse(crds_str);
+      document.getElementById('map'), {zoom: 4, center: uluru}); 
+
+                            jQuery.ajax({
+                        type: 'GET',
+                        url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+                        data:{
+                        action: 'my_action2',
+                        country: document.getElementById("select_country").value,
+                        timezone: document.getElementById("select_timezone").value,
+                        latfrom: document.getElementById("lat_from").value, 
+                        latto: document.getElementById("lat_to").value,
+                        lngfrom: document.getElementById("lng_from").value,
+                        lngto: document.getElementById("lng_to").value,
+                        populationfrom: document.getElementById("population_from").value,
+                        populationto: document.getElementById("population_to").value,
+
+
+                        },
+                         success: function(cities){
+    var crds=cities
     var infoWindows=Array();
 for(i in crds){
     marker= new google.maps.Marker({
@@ -162,12 +180,10 @@ for(i in crds){
           infowindow.setContent(crds[i]['city']+'<div>'+crds[i]['population']+'</div>');
           infowindow.open(map, marker);
         }
-      })(marker, i));
+      })(marker, i));        }}})
+   
 }
-document.getElementById("default_option_country").innerHTML='<?php echo ((isset($_GET['select_country'])&&$_GET['select_country']!='null') ? $_GET['select_country']:'Select country')?>';
 
-document.getElementById("default_option_timezone").innerHTML='<?php echo ((isset($_GET['select_timezone'])&&$_GET['select_timezone']!='null') ? $_GET['select_timezone']:'Select timezone')?>';
-}
 $(document).ready(load_timezones());
 $(document).ready(load_countries());
     </script>

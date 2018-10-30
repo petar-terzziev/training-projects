@@ -140,7 +140,21 @@ function my_action_callback(){
 global $wpdb;
 $exp=$_GET['in'].''.'%';
 $sql=$wpdb->prepare("Select distinct city from wp_coordinates  where country=%s AND city like %s limit 5",array($_GET['country'],$exp));
-sleep(1);
+$cities=$wpdb->get_results($sql);
+ header("Content-type:application/json");
+echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+exit;
+}
+
+
+
+add_action( 'wp_ajax_my_action2', 'my_action2_callback' );
+add_action( 'wp_ajax_nopriv_my_action2', 'my_action2_callback' );
+
+function my_action2_callback(){
+global $wpdb;
+$sql='select lat, lng, city,population from wp_coordinates where country=\''.$_GET['country'].'\' ';
+
 $cities=$wpdb->get_results($sql);
  header("Content-type:application/json");
 echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
