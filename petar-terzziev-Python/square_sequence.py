@@ -1,5 +1,5 @@
 def square(n):
-	if n>32000 or n<0:
+	if n>3200000 or n<0:
 		return 'invalid number'
 	s=''
 	if n==0:
