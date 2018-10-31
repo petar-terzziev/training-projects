@@ -2,24 +2,8 @@
 <?php 
 global $wpdb;
 
-session_start();
-if($_GET['select_country']!='null'){
-$_SESSION['prev_country']=$_GET['select_country'];
-}
-if($_GET['select_timezone']!='null'){
-  $_SESSION['prev_timezone']=$_GET['select_timezone'];
-}
 $countries=$wpdb->get_results("select distinct country from wp_coordinates");
 $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
-$sql_coordinates='select lat, lng, city,population from wp_coordinates where country=\''.$_SESSION['prev_country'].'\' AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>='.$_GET['population_from'].' AND population<='.$_GET['population_to'].' ';
-if($_GET['select_city']!=''){
-  $sql_coordinates='select lat, lng,city,population from wp_coordinates where city=\''.$_GET['select_city'].'\' ';
-}
-if($_GET['select_timezone']!='null'){
-  $sql_coordinates='select lat, lng,city,population from wp_coordinates where timezone=\''.$_SESSION['prev_timezone'].'\'  AND lat>'.$_GET['lat_from'].' AND lat<'.$_GET['lat_to'].' AND population>='.$_GET['population_from'].' AND population<='.$_GET['population_to'].'';
-}
-
-$coordinates=$wpdb->get_results($sql_coordinates);
 ?>
 
  <?php the_content(); ?>
@@ -46,7 +30,7 @@ $coordinates=$wpdb->get_results($sql_coordinates);
     <option value="null" id="default_option_timezone" hidden>Select Timezone</option>
 </select>
       <select name="select_country" id="select_country" >
-    <option value="null" id="default_option_country" hidden>Select Country</option>
+    <option value="null" id="default_option_country" >Select Country</option>
 </select>
 </div>
      <input type="text" id="city" name="select_city" autocomplete="off" list="cities" placeholder="Enter city name" onkeypress="load_cities(this)" >
@@ -66,7 +50,8 @@ $coordinates=$wpdb->get_results($sql_coordinates);
 <input type="number" name="population_from" id="population_from" style="width: 80px"  step="1" min="0"  >
 -
 <input type="number" name="population_to" id="population_to" style="width: 80px"  step="1" min="0"  >
-<input type="submit" value="Submit" onclick="initMap()">
+<input type="submit" value="Submit" onclick="initMap()">  
+<p id="query_results_info"></p>
 </div>
     <!--The div element for the map -->
     <div id="map"></div>
@@ -125,7 +110,7 @@ select_menu.add(option, select_menu[i+1]);
 
                           select_menu.innerHTML = '';
                           for(i in cities){
-                            console.log(cities[i])
+                  
                                  var option = document.createElement("option");
                                   option.value=cities[i]['city'];
                                   option.text = cities[i]['city'];
@@ -144,10 +129,7 @@ select_menu.add(option, select_menu[i+1]);
 // Initialize and add the map
 function initMap() {
   // The location of Uluru
-  var uluru = {lat: -25.344, lng: 131.036};
-  // The map, centered at Uluru
-  var map = new google.maps.Map(
-      document.getElementById('map'), {zoom: 4, center: uluru}); 
+  var uluru = {lat: 34.344, lng: 120.036};
 
                             jQuery.ajax({
                         type: 'GET',
@@ -156,6 +138,7 @@ function initMap() {
                         action: 'my_action2',
                         country: document.getElementById("select_country").value,
                         timezone: document.getElementById("select_timezone").value,
+                        city: document.getElementById("city").value,
                         latfrom: document.getElementById("lat_from").value, 
                         latto: document.getElementById("lat_to").value,
                         lngfrom: document.getElementById("lng_from").value,
@@ -166,8 +149,17 @@ function initMap() {
 
                         },
                          success: function(cities){
-    var crds=cities
-    var infoWindows=Array();
+                         console.log(cities);
+    var crds=cities;
+    document.getElementById("query_results_info").innerHTML='query returned '+ crds.length+' results.';
+    if(crds.length){
+      var map = new google.maps.Map(
+      document.getElementById('map'), {zoom: 4, center: {lat: parseFloat(crds[0]['lat']),lng: parseFloat(crds[0]['lng'])}}); 
+    }
+    else{
+      var map = new google.maps.Map(
+      document.getElementById('map'), {zoom: 2, center: uluru}); 
+    }
 for(i in crds){
     marker= new google.maps.Marker({
             position: {lat: parseFloat(crds[i]['lat']),lng: parseFloat(crds[i]['lng'])},
@@ -177,7 +169,7 @@ for(i in crds){
     var infowindow=new google.maps.InfoWindow();
    google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
-          infowindow.setContent(crds[i]['city']+'<div>'+crds[i]['population']+'</div>');
+          infowindow.setContent(crds[i]['city']+'<div>'+crds[i]['population']+'<div>'+'lat:'+crds[i]['lat']+' '+'lng:'+crds[i]['lng']+'</div>'+'</div>');
           infowindow.open(map, marker);
         }
       })(marker, i));        }}})

@@ -153,7 +153,17 @@ add_action( 'wp_ajax_nopriv_my_action2', 'my_action2_callback' );
 
 function my_action2_callback(){
 global $wpdb;
-$sql='select lat, lng, city,population from wp_coordinates where country=\''.$_GET['country'].'\' ';
+$country=$_GET['country']!='null' ? $_GET['country']:''; 
+$latf=$_GET['latfrom']!='' ? $_GET['latfrom']:'-90'; 
+$latt=$_GET['latto']!='' ? $_GET['latto']:'90'; 
+$lngf=$_GET['lngfrom']!='' ? $_GET['lngfrom']:'-180'; 
+$lngt=$_GET['lngto']!='' ? $_GET['lngto']:'180'; 
+$populationf=$_GET['populationfrom']!='null' ? $_GET['populationfrom']:'0'; 
+$populationt=$_GET['populationto']!='null' ? $_GET['populationto']:'1000000000'; 
+$sql='select lat, lng, city,population from wp_coordinates where timezone=\''.$_GET['timezone'].'\' AND country like \''.$country.'%\' AND lat>\''.$latf.'\' AND lat<\''.$latt.'\'  AND lng>\''.$lngf.'\' AND lng<\''.$lngt.'\' AND population>=\''.$populationf.'\' AND population<=\''.$populationt.'\'';
+if (isset($_GET['city'])&&$_GET['city']!=''){
+	$sql='select lat, lng, city,population from wp_coordinates where timezone=\''.$_GET['timezone'].'\' AND country like \''.$country.'%\' AND city=\''.$_GET['city'].'\' AND lat>\''.$latf.'\' AND lat<\''.$latt.'\'  AND lng>\''.$lngf.'\' AND lng<\''.$lngt.'\' AND population>=\''.$populationf.'\' AND population<=\''.$populationt.'\'';
+}
 
 $cities=$wpdb->get_results($sql);
  header("Content-type:application/json");
