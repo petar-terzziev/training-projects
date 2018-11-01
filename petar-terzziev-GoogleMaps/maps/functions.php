@@ -153,21 +153,34 @@ add_action( 'wp_ajax_nopriv_my_action2', 'my_action2_callback' );
 
 function my_action2_callback(){
 global $wpdb;
-$country=$_GET['country']!='null' ? $_GET['country']:''; 
-$latf=$_GET['latfrom']!='' ? $_GET['latfrom']:'-90'; 
-$latt=$_GET['latto']!='' ? $_GET['latto']:'90'; 
-$lngf=$_GET['lngfrom']!='' ? $_GET['lngfrom']:'-180'; 
-$lngt=$_GET['lngto']!='' ? $_GET['lngto']:'180'; 
-$populationf=$_GET['populationfrom']!='null' ? $_GET['populationfrom']:'0'; 
-$populationt=$_GET['populationto']!='null' ? $_GET['populationto']:'1000000000'; 
+session_start();
+if($_GET['country']=='null'&&$_GET['latfrom']!='null'&&$_GET['latto']!='null'&&$_GET['lngfrom']!='null'&&$_GET['lngto']!='null'&&$_GET['populationfrom']!='null'&&$_GET['populationto']!='null'){
+	$sql='select lat, lng, city,population from wp_coordinates where timezone=\''.$_SESSION['l_timezone'].'\' AND country like \''.$_SESSION['l_country'].'%\' AND lat>\''.$_SESSION['l_latfrom'].'\' AND lat<\''.$_SESSION['l_latto'].'\'  AND lng>\''.$_SESSION['l_lngfrom'].'\' AND lng<\''.$_SESSION['l_lngto'].'\' AND population>=\''.$_SESSION['l_populationfrom'].'\' AND population<=\''.$_SESSION['l_populationto'].'\'';
+	
+$cities=$wpdb->get_results($sql);
+ header("Content-type:application/json");
+echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+}
+else{
+$_SESSION['l_timezone']=$_GET['timezone'];
+$_SESSION['l_country']=$country=$_GET['country']!='null' ? $_GET['country']:''; 
+$_SESSION['l_latfrom']=$latf=$_GET['latfrom']!='' ? $_GET['latfrom']:'-90'; 
+$_SESSION['l_latto']=$latt=$_GET['latto']!='' ? $_GET['latto']:'90'; 
+$_SESSION['l_lngfrom']=$lngf=$_GET['lngfrom']!='' ? $_GET['lngfrom']:'-180'; 
+$_SESSION['l_lngto']=$lngt=$_GET['lngto']!='' ? $_GET['lngto']:'180'; 
+$_SESSION['l_populationfrom']=$populationf=$_GET['populationfrom']!='' ? $_GET['populationfrom']:'0'; 
+$_SESSION['l_populationto']=$populationt=$_GET['populationto']!='' ? $_GET['populationto']:'1000000000'; 
 $sql='select lat, lng, city,population from wp_coordinates where timezone=\''.$_GET['timezone'].'\' AND country like \''.$country.'%\' AND lat>\''.$latf.'\' AND lat<\''.$latt.'\'  AND lng>\''.$lngf.'\' AND lng<\''.$lngt.'\' AND population>=\''.$populationf.'\' AND population<=\''.$populationt.'\'';
 if (isset($_GET['city'])&&$_GET['city']!=''){
 	$sql='select lat, lng, city,population from wp_coordinates where timezone=\''.$_GET['timezone'].'\' AND country like \''.$country.'%\' AND city=\''.$_GET['city'].'\' AND lat>\''.$latf.'\' AND lat<\''.$latt.'\'  AND lng>\''.$lngf.'\' AND lng<\''.$lngt.'\' AND population>=\''.$populationf.'\' AND population<=\''.$populationt.'\'';
 }
 
+
+
 $cities=$wpdb->get_results($sql);
  header("Content-type:application/json");
 echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+}
 exit;
 }
 
