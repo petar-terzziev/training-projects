@@ -26,7 +26,7 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
       <p>Choose country:</p>
 
   <div>
-    <select name="select_timezone" id="select_timezone">
+    <select name="select_timezone" id="select_timezone" onchange="load_countries()">
     <option value="null" id="default_option_timezone" hidden>Select Timezone</option>
 </select>
       <select name="select_country" id="select_country" >
@@ -36,20 +36,26 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
      <input type="text" id="city" name="select_city" autocomplete="off" list="cities" placeholder="Enter city name" onkeypress="load_cities(this)" >
      <datalist id="cities">
      </datalist>
+     <div>
 <label>lat(from-to):</label>
 
-<input type="number" name="lat_from" id="lat_from" style="width: 80px" min="-90" max="90" >
+<input type="number" name="lat_from" step="0.001" id="lat_from" style="width: 80px" min="-90" max="90" >
 -
-<input type="number" name="lat_to" id="lat_to" style="width: 80px"   min="-90" max="90" >
+<input type="number" name="lat_to" id="lat_to" step="0.001" style="width: 80px"   min="-90" max="90" >
+</div>
+<div>
 <label>lng(from-to):</label>
 
-<input type="number" step="0.05" style="width: 80px" name="lng_from" id="lng_from" min="-180" max="180" >
+<input type="number" step="0.001" style="width: 80px" name="lng_from" id="lng_from" min="-180" max="180" >
 -
-<input type="number" step="0.05"  style="width: 80px" name="lng_to" id="lng_to" min="-180" max="180" >
+<input type="number" step="0.001"  style="width: 80px" name="lng_to" id="lng_to" min="-180" max="180" >
+</div>
+<div>
 <label>population(from-to):</label>
 <input type="number" name="population_from" id="population_from" style="width: 80px"  step="1" min="0"  >
 -
 <input type="number" name="population_to" id="population_to" style="width: 80px"  step="1" min="0"  >
+</div>
 <input type="submit" value="Submit" onclick="initMap()">  
 <p id="query_results_info"></p>
 </div>
@@ -66,14 +72,41 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
 
   
           var select_menu = document.getElementById("select_country");
-         var countries_string='<?php echo json_encode($countries)?>';
-         var countries =JSON.parse(countries_string);
-         for(i in countries){
-          var option = document.createElement("option");
-option.value=countries[i]['country'];
-option.text = countries[i]['country'];
-select_menu.add(option, select_menu[i+1]);
-         }
+         if(select_menu.selectedIndex!="0") select_menu.remove(select_menu.selectedIndex);
+          for (i=1;i<select_menu.options.length;i++){
+            console.log(select_menu[i]);
+            select_menu.remove(i);
+          }
+      
+                            jQuery.ajax({
+                        type: 'GET',
+                        url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+                        data:{
+                        action: 'load_countries',
+                        timezone: document.getElementById("select_timezone").value
+
+                        },
+                         success: function(counties){
+
+
+                          
+                          for(i in counties){
+                  
+                                 var option = document.createElement("option");
+                                  option.value=counties[i]['country'];
+                                  option.text = counties[i]['country'];
+                            select_menu.appendChild(option, select_menu[i+1]);
+                            if(counties[i]['country']==localStorage.getItem('country')){
+  select_menu.selectedIndex=i+1;
+}
+                          }
+
+
+                          
+                                            }
+                                        })  
+
+  
       }
 
    function load_timezones(){
@@ -86,6 +119,10 @@ select_menu.add(option, select_menu[i+1]);
 option.value=timezones[i]['timezone'];
 option.text = timezones[i]['timezone'];
 select_menu.add(option, select_menu[i+1]);
+if(timezones[i]['timezone']==localStorage.getItem('timezone')){
+  select_menu.selectedIndex=i+1;
+
+}
          }
       }
 
@@ -128,8 +165,13 @@ select_menu.add(option, select_menu[i+1]);
 
 // Initialize and add the map
 function initMap() {
+  document.getElementById('city').innerHTML=localStorage.getItem('city');
   // The location of Uluru
-  var uluru = {lat: 34.344, lng: 120.036};
+  var center = {lat: 34.344, lng: 120.036};
+  if(document.getElementById("select_country").value!='null') localStorage.setItem('country',document.getElementById("select_country").value);
+  if(document.getElementById("select_timezone").value!='null') localStorage.setItem('timezone',document.getElementById("select_timezone").value);
+ if(document.getElementById("city").value!='') localStorage.setItem('city',document.getElementById("city").value);
+ 
 
                             jQuery.ajax({
                         type: 'GET',
@@ -149,7 +191,7 @@ function initMap() {
 
                         },
                          success: function(cities){
-                         console.log(cities);
+              
     var crds=cities;
     document.getElementById("query_results_info").innerHTML='query returned '+ crds.length+' results.';
     if(crds.length){
@@ -158,7 +200,7 @@ function initMap() {
     }
     else{
       var map = new google.maps.Map(
-      document.getElementById('map'), {zoom: 2, center: uluru}); 
+      document.getElementById('map'), {zoom: 2, center}); 
     }
 for(i in crds){
     marker= new google.maps.Marker({

@@ -185,4 +185,20 @@ exit;
 }
 
 
+
+
+add_action( 'wp_ajax_load_countries', 'load_countries_callback' );
+add_action( 'wp_ajax_nopriv_load_countries', 'load_countries_callback' );
+
+function load_countries_callback(){
+global $wpdb;
+$sql=$wpdb->prepare("Select distinct country from wp_coordinates  where timezone=%s",array($_GET['timezone']));
+$cities=$wpdb->get_results($sql);
+ header("Content-type:application/json");
+echo json_encode($cities, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE);
+exit;
+}
+
+
+
 ?>
