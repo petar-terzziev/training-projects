@@ -96,7 +96,7 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
                                   option.value=counties[i]['country'];
                                   option.text = counties[i]['country'];
                             select_menu.appendChild(option, select_menu[i+1]);
-                            if(counties[i]['country']==localStorage.getItem('country')){
+                            if(select_menu[i+1]==localStorage.getItem('country')){
   select_menu.selectedIndex=i+1;
 }
                           }
