@@ -73,9 +73,11 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
   
           var select_menu = document.getElementById("select_country");
          if(select_menu.selectedIndex!="0") select_menu.remove(select_menu.selectedIndex);
+         
           for (i=1;i<select_menu.options.length;i++){
-            console.log(select_menu[i]);
+        
             select_menu.remove(i);
+            i--;
           }
       
                             jQuery.ajax({
