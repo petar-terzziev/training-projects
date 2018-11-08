@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+        </title>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var carea=0;
+	function segments(n,a,b,c){
+		var adots=Array();
+		var bdots=Array();
+		var idxa=0;
+		var idxb=0;
+		for(i=0;i<n;i+=a){
+			adots[idxa]=i;
+			idxa++;
+
+
+		}
+		for(i=0;i<n;i+=b){
+			bdots[idxb]=i;
+			idxb++;
+		}
+		var colordots=[];
+	
+		var cidx=0;
+		for(i=0;i<adots.length;i++){
+			for(j=0;j<bdots.length;j++){
+		
+	
+
+			if(Math.abs(adots[i]-bdots[j])==c){
+				colordots[cidx]=[adots[i],bdots[j]];
+				cidx++;
+			
+		
+		}
+			}
+		}
+		get_color_area(colordots,Math.min(...colordots[0]),Math.max(...colordots[0]),0);
+		return n-carea;
+
+	}
+function get_color_area(colords,from,to,idx){
+	carea+=to-from;
+	for(i=idx; i<colords.length;i++){
+		carea+=Math.max(...colords[i])-Math.min(...colords[i]);
+	
+	 if(colords[i][0]>from&&colords[i][0]<to||colords[i][1]>from&&colords[i][1]<to){
+
+	 	get_color_area(colords,Math.min(...colords[i]),Math.max(...colords[i]),i);
+	 }
+	}
+}
+console.log(segments(10,2,3,1));
+        </script>
+    </body>
+</html>
