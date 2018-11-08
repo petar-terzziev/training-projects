@@ -18,7 +18,7 @@
 
 
 		}
-		for(i=0;i<n;i+=b){
+		for(i=n;i>0;i-=b){
 			bdots[idxb]=i;
 			idxb++;
 		}
@@ -43,7 +43,6 @@
 
 	}
 function get_color_area(colords,from,to,idx){
-	carea+=to-from;
 	for(i=idx; i<colords.length;i++){
 		carea+=Math.max(...colords[i])-Math.min(...colords[i]);
 	
