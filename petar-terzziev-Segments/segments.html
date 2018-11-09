@@ -38,21 +38,45 @@
 		}
 			}
 		}
-		get_color_area(colordots,Math.min(...colordots[0]),Math.max(...colordots[0]),0);
+
+		get_color_area(colordots,Math.min(...colordots[0]),Math.max(...colordots[0]),1);
 		return n-carea;
 
 	}
 function get_color_area(colords,from,to,idx){
 	for(i=idx; i<colords.length;i++){
-		carea+=Math.max(...colords[i])-Math.min(...colords[i]);
-	
-	 if(colords[i][0]>from&&colords[i][0]<to||colords[i][1]>from&&colords[i][1]<to){
+		console.log(colords[i]);
+	nt=Math.max(...colords[i]);
+	nf=Math.min(...colords[i]);
+	carea+=nt-nf
+	if(nf<=from&&nt>=to){
+  	console.log('recurse');
+	carea-=to-from;
+	get_color_area(colords,nf,nt,i+1);
+		}
+	else if(nf>=from&&nt<=to){
+		console.log('recurse');
 
-	 	get_color_area(colords,Math.min(...colords[i]),Math.max(...colords[i]),i);
+		care-=nt-nf
+		get_color_area(colords,nf,nt,i+1);
+	}
+	else if(nt>=from&&nt<=to){
+console.log('recurse');
+	 	carea-=nt-from;
+	 	get_color_area(colords,nf,nt,i+1);
 	 }
+	 else if(nf>=from&&nf<=to){
+console.log('recurse');
+	 	carea-=to-nf;	
+
+	 	get_color_area(colords,nf,nt,i+1);
+	 	
+	 }
+	 from=nf;
+	 to=nt;
 	}
 }
-console.log(segments(10,2,3,1));
+console.log(segments(20,3,2,3));
         </script>
     </body>
 </html>
