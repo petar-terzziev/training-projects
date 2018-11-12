@@ -2,7 +2,7 @@
 <?php 
 global $wpdb;
 
-$countries=$wpdb->get_results("select distinct country from wp_coordinates");
+$countries=$wpdb->get_results("select distinct country from wp_coordinates"); // TODO da go mahna
 $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
 ?>
 
@@ -10,8 +10,7 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
 
 <html>
   <head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style>
        /* Set the size of the div element that contains the map */
       #map {
@@ -27,7 +26,7 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
 
   <div>
     <select name="select_timezone" id="select_timezone" onchange="load_countries()">
-    <option value="null" id="default_option_timezone" hidden>Select Timezone</option>
+    <option value="null" id="default_option_timezone" >Select Timezone</option>
 </select>
       <select name="select_country" id="select_country" >
     <option value="null" id="default_option_country" >Select Country</option>
@@ -82,13 +81,13 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
       
                             jQuery.ajax({
                         type: 'GET',
-                        url: '<?php echo admin_url( 'admin-ajax.php' ); ?>',
+                        url: '<?php echo admin_url( 'admin-ajax.php' ); ?>', // TODO da nqma php 
                         data:{
                         action: 'load_countries',
                         timezone: document.getElementById("select_timezone").value
 
                         },
-                         success: function(counties){
+                         success: function(counties){  // todo error handling
 
 
                           
@@ -113,6 +112,7 @@ $timezones=$wpdb->get_results("select distinct timezone from wp_coordinates");
 
    function load_timezones(){
       
+ localStorage.setItem('country',document.getElementById("select_country").value);
           var select_menu = document.getElementById("select_timezone");
          var timezones_string='<?php echo json_encode($timezones)?>';
          var timezones =JSON.parse(timezones_string);
@@ -167,11 +167,9 @@ if(timezones[i]['timezone']==localStorage.getItem('timezone')){
 
 // Initialize and add the map
 function initMap() {
-  document.getElementById('city').innerHTML=localStorage.getItem('city');
   // The location of Uluru
   var center = {lat: 34.344, lng: 120.036};
-  if(document.getElementById("select_country").value!='null') localStorage.setItem('country',document.getElementById("select_country").value);
-  if(document.getElementById("select_timezone").value!='null') localStorage.setItem('timezone',document.getElementById("select_timezone").value);
+  localStorage.setItem('timezone',document.getElementById("select_timezone").value);
  if(document.getElementById("city").value!='') localStorage.setItem('city',document.getElementById("city").value);
  
 
@@ -213,7 +211,7 @@ for(i in crds){
     var infowindow=new google.maps.InfoWindow();
    google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
-          infowindow.setContent(crds[i]['city']+'<div>'+crds[i]['population']+'<div>'+'lat:'+crds[i]['lat']+' '+'lng:'+crds[i]['lng']+'</div>'+'</div>');
+          infowindow.setContent(crds[i]['city']+'<div>'+crds[i]['population']+'<div>'+'lat:'+crds[i]['lat']+' '+'lng:'+crds[i]['lng']+'</div>'+'</div>'); // todo da nqma html v js !1!
           infowindow.open(map, marker);
         }
       })(marker, i));        }}})
@@ -228,6 +226,7 @@ $(document).ready(load_countries());
     * The key parameter will contain your own API key (which is not needed for this tutorial)
     * The callback parameter executes the initMap() function
     -->
+
     <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAutW-KzdxV_So564MrGUM3qQtNNqNE8Gg&callback=initMap">
     </script>
