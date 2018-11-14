@@ -5,15 +5,20 @@
         </title>
     </head>
     <body>
-
-    	 <svg id="svg" >
-    	 	<polyline id="poly">
-  <line id="main_line" x1="0" y1="0" style="stroke:rgb(255,0,0);stroke-width:2" />
-</svg>  
+ <canvas id="myCanvas" width="500" height="1000"></canvas>
 
         <script type="text/javascript">
             var carea=0;
 	function segments(n,a,b,c){
+		var canvas=document.getElementById("myCanvas");
+		   var context = canvas.getContext('2d');
+
+      context.beginPath();
+      context.moveTo(50*n, 20);
+      context.lineTo(0,20);
+      context.stroke();
+      context.closePath();
+
 		var adots=Array();
 		var bdots=Array();
 		var idxa=0;
@@ -44,9 +49,24 @@
 		}
 			}
 		}
-		document.getElementById("svg").height=n*20;
-		document.getElementById("svg").width=n*20;
-		document.getElementById("poly").setAttribute('points',adots);
+		var mins=Array();
+		for(i in colordots)
+		mins[i]=Math.min(...colordots[i]);
+		var maxs=Array();
+		for(i in colordots)
+		maxs[i]=Math.max(...colordots[i]);
+
+	console.log(Math.max(...maxs));
+
+
+      context.beginPath();
+      context.moveTo(50*Math.max(...maxs), 20);
+      context.lineTo(Math.min(...mins)*(50),20);
+      context.strokeStyle='#cc0000';
+      context.stroke();
+      context.closePath();
+
+     
 
 
 
@@ -90,7 +110,7 @@ console.log('recurse');
 	 to=nt;
 	}
 }
-console.log(segments(20,3,2,3));
+console.log(segments(10,2,3,1));
         </script>
     </body>
 </html>
