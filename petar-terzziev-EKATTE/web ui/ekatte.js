@@ -29,7 +29,7 @@ datatype: 'json',
 data: 
 {
 selishte: document.getElementById("sel")
-}
+},
 success: function (d){
 	for(i in d){
 text+="number of "+ i + " is "+d[i][0]+" ";
