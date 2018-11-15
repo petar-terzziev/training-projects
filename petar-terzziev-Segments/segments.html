@@ -26,12 +26,28 @@
 		for(i=0;i<n;i+=a){
 			adots[idxa]=i;
 			idxa++;
+			 context.beginPath();
+      context.moveTo(50*i, 20);
+      context.lineTo(50*i,25);
+      context.lineTo(50*i,15);
+      context.strokeStyle='rgb(0,255,0)';
+       context.fillText(i,50*i,16); 
+      context.stroke();
+      context.closePath();
 
 
 		}
 		for(i=n;i>=0;i-=b){
 			bdots[idxb]=i; 
 			idxb++;
+					 context.beginPath();
+      context.moveTo(50*i, 20);
+      context.lineTo(50*i,25);
+      context.lineTo(50*i,15);
+      context.strokeStyle='rgb(0,0,255)';
+      context.fillText(i,50*i,16); 
+      context.stroke();
+      context.closePath();
 		}
 		var colordots=[];
 	
@@ -43,28 +59,19 @@
 
 			if(Math.abs(adots[i]-bdots[j])==c){
 				colordots[cidx]=[adots[i],bdots[j]];
-				cidx++;
+				  context.beginPath();
+      context.moveTo(50*Math.min(...colordots[cidx]), 20);
+      context.lineTo(Math.max(...colordots[cidx])*(50),20);
+      context.strokeStyle='#cc0000';
+      context.stroke();
+      context.closePath();
+      cidx++;
+
 			
 		
 		}
 			}
 		}
-		var mins=Array();
-		for(i in colordots)
-		mins[i]=Math.min(...colordots[i]);
-		var maxs=Array();
-		for(i in colordots)
-		maxs[i]=Math.max(...colordots[i]);
-
-	console.log(Math.max(...maxs));
-
-
-      context.beginPath();
-      context.moveTo(50*Math.max(...maxs), 20);
-      context.lineTo(Math.min(...mins)*(50),20);
-      context.strokeStyle='#cc0000';
-      context.stroke();
-      context.closePath();
 
      
 

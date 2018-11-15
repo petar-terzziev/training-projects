@@ -2,10 +2,7 @@ import xlrd
 import MySQLdb
 
 
-def find_name(kod,sheet):
-	for r in range(1,sheet.nrows):
-		if(sheet.cell(r,0).value==kod):
-			return sheet.cell(r,2).value
+
 # Open the workbook and define the worksheet
 books=[];
 sheets=[];
@@ -32,39 +29,39 @@ cursor.execute("ALTER DATABASE ekatte CHARACTER SET 'utf8' COLLATE 'utf8_unicode
 
 # Create the INSERT INTO sql query
 queries=[];
-queries.append("""INSERT IGNORE INTO oblasti (name) VALUES (%s)""")
+queries.append("""INSERT IGNORE INTO oblasti (kod_oblast,name) VALUES (%s,%s)""")
 
-queries.append("""INSERT IGNORE INTO obstini (name,oblast) VALUES (%s, %d)""")
+queries.append("""INSERT IGNORE INTO obstini (kod_obstina,name,oblast) VALUES (%s,%s, %s)""")
 
-queries.append("""INSERT IGNORE INTO selishta (name,obstina) VALUES (%s, %d)""")
+queries.append("""INSERT IGNORE INTO selishta (ekatte,name,obstina) VALUES (%s,%s, %s)""")
 
 
-hq1="Select id from oblasti where name=%s";
-hq2="Select id from obstini where name=%s";
+hq1="Select id from oblasti where kod_oblast=%s";
+hq2="Select id from obstini where kod_obstina=%s";
 
 
 
 # Create a For loop to iterate through each row in the XLS file, starting at row 2 to skip the headers
 for i in range(len(sheets)):
 	for r in range(1, sheets[i].nrows):
-		
-		ime		= sheets[i].cell(r,2).value
-		values = [ime]
+		koblast = sheets[i].cell(r,0).value
+		ime	= sheets[i].cell(r,2).value
+		values = [koblast,ime]
 		if(i==1):
-			f=find_name(sheets[i].cell(r,0).value[:-2],sheets[i-1])
-			cursor.execute(hq1,[f])
+			cursor.execute(hq1,[sheets[i].cell(r,0).value[:-2]])
 			res=cursor.fetchone()
-			g=int(res[0])
+			
+			values=[koblast,ime,res]
 		
-			values=(ime,g)
+			
 		if(i==2):
-			f=find_name(sheets[i].cell(r,4).value,sheets[i-1])
-			cursor.execute(hq2,[f])
+			cursor.execute(hq2,[sheets[i].cell(r,4).value])
 			res=cursor.fetchone()
-			g=int(res[0])
+			print(sheets[i].cell(r,4).value)
+			values=[koblast,ime,res]
 		
-			values=(ime,g)
-			cursor.execute(queries[i], values)
+			
+			
 
 		
 		
