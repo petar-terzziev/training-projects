@@ -28,14 +28,14 @@
         		for(i=0;i<r;i++)
         		{
         			var nr=[]
-        			console.log(searchForArray(all_rottens,[4,8]));
+        			
 
 
         			for(j in cur_rottens)
         			{        			
 
 
-        				if(cur_rottens[j][0]<(k-1))
+        				if(cur_rottens[j][0]<k)
         				{
         					if(!searchForArray(all_rottens,[cur_rottens[j][0]+1,cur_rottens[j][1]]))
         				{
@@ -45,7 +45,7 @@
         				}
         				}
 
-        				 if(cur_rottens[j][0]>0)
+        				 if(cur_rottens[j][0]>1)
         				{
         					if(!searchForArray(all_rottens,[cur_rottens[j][0]-1,cur_rottens[j][1]]))
         				{
@@ -58,7 +58,7 @@
         				}
 
 
-        				if(cur_rottens[j][1]<(l-1))
+        				if(cur_rottens[j][1]<l)
         				{
         					if(!searchForArray(all_rottens,[cur_rottens[j][0],cur_rottens[j][1]+1]))
         				{
@@ -68,7 +68,7 @@
         					
         				}
 
-        				if(cur_rottens[j][1]>0)
+        				if(cur_rottens[j][1]>1)
         				{
         					if(!searchForArray(all_rottens,[cur_rottens[j][0],cur_rottens[j][1]-1]))
         				{
@@ -80,20 +80,19 @@
 
         				
         			}
-        			console.log(nr);
+                   
+        			
 
         				cur_rottens=[];
         				cur_rottens.push(...nr);
  
 
         		}
-        		console.log(cur_rottens.length);
-        		console.log(all_rottens.length);
         		console.log(k*l-all_rottens.length);
 
 
         	}
-        strawberies(8,10,2,4,8,2,7);
+       strawberies(100,100,60,1,1,50,50);
 
         </script>
     </body>
