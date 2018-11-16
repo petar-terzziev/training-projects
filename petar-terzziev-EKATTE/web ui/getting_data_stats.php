@@ -1,6 +1,6 @@
  <?php 
 
-$db=new PDO('mysql:host=localhost;dbname=ekatte','ekatteuser','1241323');
+$db=new PDO('pgsql:host=localhost;dbname=ekatte','postgres','1241323');
 
 $count_obl="Select count(*) from oblasti";
 $count_obst="Select count(*) from obstini";

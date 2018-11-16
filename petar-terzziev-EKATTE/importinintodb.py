@@ -1,8 +1,5 @@
 import xlrd
-import MySQLdb
-
-
-
+import psycopg2
 # Open the workbook and define the worksheet
 books=[];
 sheets=[];
@@ -17,23 +14,19 @@ sheets.append(books[2].sheet_by_name("Ek_atte"))
 
 
 # Establish a MySQL connection
-database = MySQLdb.connect (host="localhost", user = "ekatteuser", passwd = "1241323", db = "ekatte")
-database.set_character_set('utf8')
-
+connect_str = "dbname='ekatte' user='postgres' host='localhost' " + \
+                  "password='1241323'"
+    # use our connection values to establish a connection
+conn = psycopg2.connect(connect_str)
 # Get the cursor, which is used to traverse the database, line by line
-cursor = database.cursor()
-cursor.execute('SET NAMES utf8;')
-cursor.execute('SET CHARACTER SET utf8;')
-cursor.execute('SET character_set_connection=utf8;')
-cursor.execute("ALTER DATABASE ekatte CHARACTER SET 'utf8' COLLATE 'utf8_unicode_ci'")
-
+cursor = conn.cursor()
 # Create the INSERT INTO sql query
 queries=[];
-queries.append("""INSERT IGNORE INTO oblasti (kod_oblast,name) VALUES (%s,%s)""")
+queries.append("""INSERT  INTO oblasti (kod_oblast,name) VALUES (%s,%s)""")
 
-queries.append("""INSERT IGNORE INTO obstini (kod_obstina,name,oblast) VALUES (%s,%s, %s)""")
+queries.append("""INSERT  INTO obstini (kod_obstina,name,oblast) VALUES (%s,%s, %s)""")
 
-queries.append("""INSERT IGNORE INTO selishta (ekatte,name,obstina) VALUES (%s,%s, %s)""")
+queries.append("""INSERT  INTO selishta (ekatte,name,obstina) VALUES (%s,%s, %s)""")
 
 
 hq1="Select id from oblasti where kod_oblast=%s";
@@ -50,6 +43,7 @@ for i in range(len(sheets)):
 		if(i==1):
 			cursor.execute(hq1,[sheets[i].cell(r,0).value[:-2]])
 			res=cursor.fetchone()
+			print (res)
 			
 			values=[koblast,ime,res]
 		
@@ -73,10 +67,10 @@ for i in range(len(sheets)):
 cursor.close()
 
 # Commit the transaction
-database.commit()
+conn.commit()
 
 # Close the database connection
-database.close()
+conn.close()
 
 # Print results
 columns = str(sheets[0].ncols)
