@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+        </title>
+    </head>
+    <body>
+
+        <script type="text/javascript">
+        	function searchForArray(haystack, needle){
+  var i, j, current;
+  for(i = 0; i < haystack.length; ++i){
+    if(needle.length === haystack[i].length){
+      current = haystack[i];
+      for(j = 0; j < needle.length && needle[j] === current[j]; ++j);
+      if(j === needle.length)
+        return true;
+    }
+  }
+  return false;
+}
+        	function strawberies(k,l,r,rotten1row,rotten1col,rotten2row,rotten2col)
+        	{
+        		var rotten1=[rotten1row,rotten1col];
+        		var rotten2=[rotten2row,rotten2col];
+        		var cur_rottens=[rotten1,rotten2];
+        		var all_rottens=[rotten1,rotten2];
+        		for(i=0;i<r;i++)
+        		{
+        			var nr=[]
+        			console.log(searchForArray(all_rottens,[4,8]));
+
+
+        			for(j in cur_rottens)
+        			{        			
+
+
+        				if(cur_rottens[j][0]<(k-1))
+        				{
+        					if(!searchForArray(all_rottens,[cur_rottens[j][0]+1,cur_rottens[j][1]]))
+        				{
+
+        					nr.push([cur_rottens[j][0]+1,cur_rottens[j][1]]);
+        					all_rottens.push([cur_rottens[j][0]+1,cur_rottens[j][1]]);
+        				}
+        				}
+
+        				 if(cur_rottens[j][0]>0)
+        				{
+        					if(!searchForArray(all_rottens,[cur_rottens[j][0]-1,cur_rottens[j][1]]))
+        				{
+
+
+        					nr.push([cur_rottens[j][0]-1,cur_rottens[j][1]]);
+        					all_rottens.push([cur_rottens[j][0]-1,cur_rottens[j][1]]);
+
+        				}
+        				}
+
+
+        				if(cur_rottens[j][1]<(l-1))
+        				{
+        					if(!searchForArray(all_rottens,[cur_rottens[j][0],cur_rottens[j][1]+1]))
+        				{
+        					nr.push([cur_rottens[j][0],cur_rottens[j][1]+1]);
+        					all_rottens.push([cur_rottens[j][0],cur_rottens[j][1]+1]);
+        				}
+        					
+        				}
+
+        				if(cur_rottens[j][1]>0)
+        				{
+        					if(!searchForArray(all_rottens,[cur_rottens[j][0],cur_rottens[j][1]-1]))
+        				{
+        			
+        					nr.push([cur_rottens[j][0],cur_rottens[j][1]-1]);
+        					all_rottens.push([cur_rottens[j][0],cur_rottens[j][1]-1]);
+        				}
+        				}
+
+        				
+        			}
+        			console.log(nr);
+
+        				cur_rottens=[];
+        				cur_rottens.push(...nr);
+ 
+
+        		}
+        		console.log(cur_rottens.length);
+        		console.log(all_rottens.length);
+        		console.log(k*l-all_rottens.length);
+
+
+        	}
+        strawberies(8,10,2,4,8,2,7);
+
+        </script>
+    </body>
+</html>
