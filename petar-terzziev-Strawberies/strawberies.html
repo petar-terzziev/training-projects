@@ -1,13 +1,82 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <style>
+          #somediv {
+                float: left;
+            }
+            #wheretheyshouldbe {
+                float: right;
+                margin-left: 10px;
+            }
+        </style>
+
         <title>
         </title>
     </head>
     <body>
+        <div id="somediv">
+        <canvas id="myCanvas" width="400" height="400"></canvas>
+        <div id="wheretheyshouldbe" float=left>
 
+        </div>
+</div>
         <script type="text/javascript">
-        	function searchForArray(haystack, needle){
+  var myCanvas = document.getElementById('myCanvas');
+
+  var ctx = myCanvas.getContext('2d');
+  
+ 
+  
+  function drawScreen (mw,mh) {
+    var dx = 30;
+    var dy = 30;
+    
+    var x = 0;
+    var y = 0;
+    var w = mw;
+    var h = mh;
+    
+    
+    var xy = 10;
+    
+    ctx.lineWidth = 1;
+    
+    while (y < h) {
+      y = y + dy;
+      ctx.moveTo(x, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+      ctx.font = "1px Calibri";  
+      ctx.fillText(xy, x, y);  
+      xy += 10;  
+    }
+
+    y =0;  
+    xy =10; 
+    while (x < w) {
+      x = x + dx;
+      ctx.moveTo(x, y);  
+      ctx.lineTo(x,h);  
+      ctx.stroke();   
+      ctx.font = "1px Calibri";  
+      ctx.fillText(xy,x,10);    
+      xy+=10;  
+    }
+    ctx.closePath();
+  }
+ function drawrotten(col,row,opacity,l)
+ {
+                ctx.beginPath();
+                ctx.moveTo(col*30,row*30);
+                ctx.fillStyle = "rgb("+opacity[0]+","+opacity[1]+","+opacity[2]+")";
+                ctx.arc((col-1)*30+15,(l-row-1)*30-15, 15, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.closePath();
+}
+  
+
+    function searchForArray(haystack, needle){
   var i, j, current;
   for(i = 0; i < haystack.length; ++i){
     if(needle.length === haystack[i].length){
@@ -21,6 +90,14 @@
 }
         	function strawberies(k,l,r,rotten1row,rotten1col,rotten2row,rotten2col)
         	{
+                var day1=document.createElement('p');
+                drawScreen(l*30,k*30);      
+                cur_opacity=[0,0,0];
+                day1.style.color="rgb("+cur_opacity[0]+","+cur_opacity[1]+","+cur_opacity[2]+")";
+                day1.appendChild(document.createTextNode("day 1 color"));
+                document.getElementById("wheretheyshouldbe").appendChild(day1);
+                drawrotten(rotten1col,rotten1row,cur_opacity,l);
+               drawrotten(rotten2col,rotten2row,cur_opacity,l);
         		var rotten1=[rotten1row,rotten1col];
         		var rotten2=[rotten2row,rotten2col];
         		var cur_rottens=[rotten1,rotten2];
@@ -32,8 +109,8 @@
 
 
         			for(j in cur_rottens)
-        			{        			
-
+        			{        
+                   
 
         				if(cur_rottens[j][0]<k)
         				{
@@ -80,11 +157,23 @@
 
         				
         			}
-                   
+
+                       
         			
 
         				cur_rottens=[];
-        				cur_rottens.push(...nr);
+        				cur_rottens.push(...nr)
+                        day=document.createElement('p');
+                    cur_opacity[0]+=(i+1)*40;
+                    cur_opacity[1]+=(i+1)*40;
+                    cur_opacity[2]+=(i+1)*40;
+                day.style.color="rgb("+cur_opacity[0]+","+cur_opacity[1]+","+cur_opacity[2]+")";
+                day.appendChild(document.createTextNode("day "+(i+2)+" color"));
+                document.getElementById("wheretheyshouldbe").appendChild(day);
+                           for(j in cur_rottens)
+                    {        
+                   drawrotten(cur_rottens[j][1],cur_rottens[j][0],cur_opacity,l);        
+                }
  
 
         		}
@@ -92,7 +181,7 @@
 
 
         	}
-       strawberies(100,100,60,1,1,50,50);
+       strawberies(8,10,2,4,8,2,7);
 
         </script>
     </body>
