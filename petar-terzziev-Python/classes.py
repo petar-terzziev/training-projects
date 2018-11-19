@@ -128,3 +128,71 @@ print(stringset.data)
 goingouttolunch=Lunch()
 goingouttolunch.order("Pizza")
 goingouttolunch.result()
+
+class Animal:
+	def speak(self):
+		print("Hello word")
+	def reply(self):
+		self.speak()
+
+class Mammal(Animal): pass	
+
+class Cat(Mammal):
+	def speak(self):
+		print("meow")
+
+class Dog(Mammal):
+	def speak(self):
+		print("bark")
+
+class Primat(Mammal): pass 
+
+class Hacker(Primat): pass
+
+
+
+class Customer:
+	def line(self):
+		print("that's one ex-bird!")
+
+class Clerk:
+	def line(self):
+		print("no it isn't...")
+
+class Parrot:
+	def line(self):
+		print(None)
+
+
+class Scene:
+	def __init__(self):
+		self.parrot=Parrot()
+		self.clerk=Clerk()
+		self.customer=Customer()
+
+	def action(self):
+		self.parrot.line()
+		self.clerk.line()
+		self.customer.line()
+
+
+class Myerror(Exception): pass 
+
+
+def oops():
+	raise Myerror
+
+def catchingindex():
+	try:
+		oops()
+	except (IndexError,KeyError,Myerror) as e :
+		print("caught it")
+import sys, traceback
+
+def safe(func,*pargs,**kargs):
+	try:
+		func(*pargs,**kargs)
+	except:
+		traceback.print_exc()
+		print('Got %s %s' % (sys.exec_info()[0],sys.exec_info()[1]))
+
