@@ -22,11 +22,11 @@ conn = psycopg2.connect(connect_str)
 cursor = conn.cursor()
 # Create the INSERT INTO sql query
 queries=[];
-queries.append("""INSERT  INTO oblasti (kod_oblast,name) VALUES (%s,%s)""")
+queries.append("""INSERT  INTO oblasti (kod_oblast,name) VALUES (%s,%s) ON conflict(kod_oblast) do nothing """)
 
-queries.append("""INSERT  INTO obstini (kod_obstina,name,oblast) VALUES (%s,%s, %s)""")
+queries.append("""INSERT  INTO obstini (kod_obstina,name,oblast) VALUES (%s,%s, %s)  ON conflict(kod_obstina) do nothing""")
 
-queries.append("""INSERT  INTO selishta (ekatte,name,obstina) VALUES (%s,%s, %s)""")
+queries.append("""INSERT  INTO selishta (ekatte,name,obstina) VALUES (%s,%s, %s) ON conflict(ekatte) do nothing""")
 
 
 hq1="Select id from oblasti where kod_oblast=%s";
@@ -43,15 +43,15 @@ for i in range(len(sheets)):
 		if(i==1):
 			cursor.execute(hq1,[sheets[i].cell(r,0).value[:-2]])
 			res=cursor.fetchone()
-			print (res)
 			
+			     
 			values=[koblast,ime,res]
 		
 			
 		if(i==2):
 			cursor.execute(hq2,[sheets[i].cell(r,4).value])
 			res=cursor.fetchone()
-			print(sheets[i].cell(r,4).value)
+			
 			values=[koblast,ime,res]
 		
 			
