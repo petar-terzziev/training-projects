@@ -43,13 +43,14 @@ sn=qnode(start,0)
 matrix[0][0]='.'
 q=[]
 q.append(sn)
-def bfs():
-	visited=[[False*len(matrix)]*len(matrix[0])]
+def bfs(finish):
+	visited=[[False for i in range(len(matrix[0]))]for i in range(len(matrix))]
 	while len(q)>0:
 
 		curr=q[0]
-		print(curr)
-		if(curr[0][0]==4 and curr[0][1]==6):
+
+		
+		if(curr[0][0]==finish[0] and curr[0][1]==finish[1]):
 			return curr[1]
 
 		q.pop(0)
@@ -57,16 +58,17 @@ def bfs():
 		for i in range(4):
 			row=curr[0][0]+rowit[i]
 			col=curr[0][1]+colit[i]
-			if(valid(row,col) and matrix[row][col]==' ' and (not visited[row][col])):
+			if(valid(row,col) and matrix[row][col]!='*' and visited[row][col]==False):
 				visited[row][col]=True
 				adjc=qnode(Point(row,col),curr[1]+1)
+
 				
 				q.append(adjc)
 
 
 
-
-okok=bfs()
+e=Point(4,6)
+okok=bfs(e)
 print(okok)
 	
 
